@@ -27,8 +27,6 @@
       let obj = {};
       questions.forEach((question) => arr.push(question.value));
       return (obj = { id: next + 1, title, user, questions: arr });
-      // const inputDate = document.querySelectorAll('#input-date')
-      // inputDate.value = new Date();
     };
 
     const saveQuestions = (next) => {
@@ -39,7 +37,7 @@
       const outData = localStorage.getItem('banco')
         ? JSON.parse(localStorage.getItem('banco'))
         : [];
-      const newData = [...outData, { ...quiz, onCreated: new Date() }];
+      const newData = [...outData, { ...quiz, onCreated: new Date().toLocaleString() }];
       localStorage.setItem('banco', JSON.stringify(newData));
       window.location.href = 'home.html';
     };
