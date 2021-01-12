@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - Processo AgroTools</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+  </head>
+  <script>
+    window.onload = async () => {
+      const fetch = await fetchApi();
+      const storage = JSON.parse(localStorage.getItem('banco'));
+      if (storage !== null) {
+        const data = fetch.concat(storage);
+        formatCards(data);
+      } else {
+        const data = fetch;
+        formatCards(data);
+      }
+    };
+
+    const getId = (id) => localStorage.setItem('idQuestion', id);
+
+    const fetchApi = async () =>
+      fetch('http://localhost:3001/')
+        .then((data) => data.json())
+        .then((response) => response.data);
+
+    const formatCards = (data) => {
+      const divMaster = document.querySelector('.card-deck');
+      const btnNew = document.querySelector('#btn-new');
+      btnNew.onclick = () => (window.location.href = '/newQuiz.html');
+
+      data.forEach((card, index) => {
+        localStorage.setItem('max-quest', index + 1);
+        const divCard = document.createElement('div');
+        const divCardBody = document.createElement('div');
+        const h5 = document.createElement('h5');
+        const createdOn = document.createElement('p');
+        const userP = document.createElement('p');
+        const link = document.createElement('a');
+
+        divCard.classList = 'card';
+        divCardBody.classList = 'card-body';
+        h5.classList = 'card-title';
+        createdOn.classList = 'card-text text-muted';
+        userP.classList = 'card-text';
+        link.classList = 'btn btn-primary float-right';
+
+        link.onclick = () => {
+          getId(card.id);
+          window.location.href = '/quiz.html';
+        };
+
+        h5.innerHTML = card.title;
+        createdOn.innerHTML = card.onCreated;
+        userP.innerHTML = card.user;
+        link.innerHTML = 'Responder';
+
+        if (localStorage.database) {
+          const answer = Object.keys(JSON.parse(localStorage.getItem('database')));
+          const have = answer.some((item) => Number(item) === Number(card.id));
+          have ? (link.innerHTML = 'Ver Respostas') : (link.innerHTML = 'Responder');
+        }
+
+        divCard.appendChild(divCardBody);
+        divCardBody.appendChild(h5);
+        divCardBody.appendChild(userP);
+        divCardBody.appendChild(createdOn);
+        divCardBody.appendChild(link);
+        divMaster.appendChild(divCard);
+      });
+    };
+  </script>
+  <body>
+    <div class="container-sm">
+      <h1>AgroTools</h1>
+      <div class="card-deck"></div>
+    </div>
+    <button type="button" id="btn-new" class="btn btn-primary float-right m-5">
+      Novo Questionário
+    </button>
+  </body>
+</html>

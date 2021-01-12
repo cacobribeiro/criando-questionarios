@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Novo Questionario - Processo AgroTools</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+  </head>
+  <script>
+    window.onload = async () => {
+      const btnSave = document.querySelector('#btn-save');
+      const nextQuest = localStorage.getItem('max-quest');
+      btnSave.onclick = () => saveQuestions(Number(nextQuest));
+      formatCards();
+    };
+
+    const createObj = (next) => {
+      const questions = document.querySelectorAll('#questions');
+      const user = document.querySelector('#user').value;
+      const title = document.querySelector('#title').value;
+      const arr = [];
+      let obj = {};
+      questions.forEach((question) => arr.push(question.value));
+      return (obj = { id: next + 1, title, user, questions: arr });
+      // const inputDate = document.querySelectorAll('#input-date')
+      // inputDate.value = new Date();
+    };
+
+    const saveQuestions = (next) => {
+      const quiz = createObj(next);
+      const newId = next + 1;
+      console.log(newId);
+
+      const outData = localStorage.getItem('banco')
+        ? JSON.parse(localStorage.getItem('banco'))
+        : [];
+      const newData = [...outData, { ...quiz, onCreated: new Date() }];
+      localStorage.setItem('banco', JSON.stringify(newData));
+      window.location.href = 'home.html';
+    };
+
+    const formatCards = (data) => {
+      let index = 0;
+      const btnNew = document.querySelector('#btn-new');
+
+      btnNew.onclick = () => {
+        index++;
+        const divMaster = document.querySelector('#forms-inputs');
+        const divGroup = document.createElement('div');
+        const input = document.createElement('input');
+        const label = document.createElement('label');
+        input.type = 'text';
+        input.classList = 'form-control';
+        input.id = 'questions';
+        divGroup.classList = 'form-group';
+        label.innerHTML = `Pergunta ${index}`;
+        divGroup.appendChild(label);
+        divGroup.appendChild(input);
+        divMaster.appendChild(divGroup);
+      };
+    };
+  </script>
+  <body>
+    <div class="container-sm">
+      <form id="forms-inputs">
+        <div class="form-group">
+          <label>Nome de usuario</label>
+          <input class="form-control" id="user" type="text" />
+        </div>
+        <div class="form-group">
+          <label>Titulo do Questionário</label>
+          <input class="form-control" id="title" type="text" />
+        </div>
+        <input id="input-date" type="hidden" />
+      </form>
+      <div class="d-flex ml-4">
+        <button type="button" id="btn-save" class="btn btn-primary m-3">Salvar Questionário</button>
+        <button type="button" id="btn-new" class="btn btn-primary m-3">Adicionar Pergunta</button>
+      </div>
+    </div>
+  </body>
+</html>

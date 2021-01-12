@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - Processo Seletivo AgroTools</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+  </head>
+  <script>
+    const id = localStorage.getItem('idQuestion');
+    if (!id) window.location.href = '/home.html';
+
+    window.onload = async () => {
+      let data = await fetchApi();
+      if (!data) {
+        const storage = JSON.parse(localStorage.getItem('banco'));
+        data = storage.filter((question) => question.id === Number(id))[0];
+      }
+      htmlQuiz(data);
+
+      haveAnswers();
+    };
+
+    const haveAnswers = () => {
+      const arr = document.querySelectorAll('#inputs');
+      if (localStorage.database) {
+        const answer = JSON.parse(localStorage.getItem('database'));
+        const questions = Object.values(answer);
+        const have = questions.filter((item) => item.questionsId === id)[0];
+        if (have) {
+          arr.forEach((input, index) => {
+            input.value = have.answer[index];
+            input.setAttribute('disabled', 'disabled');
+          });
+        }
+      }
+    };
+
+    const htmlQuiz = (data) => {
+      const divMaster = document.querySelector('#forms');
+      const questionsTitle = document.querySelector('#h3-title');
+      const btn = document.createElement('button');
+
+      divMaster.setAttribute('action', `http://localhost:3001/${data.id}`);
+
+      questionsTitle.innerHTML = data.title;
+      btn.innerHTML = 'Enviar Respostas';
+
+      btn.onclick = (e) => {
+        event.preventDefault();
+        database(data);
+        window.location.href = '/home.html';
+      };
+
+      data.questions.forEach((card) => {
+        const divCard = document.createElement('div');
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+
+        divCard.classList = 'form-group';
+        label.innerHTML = card;
+        input.type = 'text';
+        input.id = 'inputs';
+        input.classList = 'form-control';
+
+        btn.classList = 'btn btn-primary float-right mt-3';
+
+        divMaster.appendChild(divCard);
+
+        divCard.appendChild(label);
+        divCard.appendChild(input);
+      });
+
+      divMaster.appendChild(btn);
+    };
+
+    const fetchApi = async () =>
+      fetch(`http://localhost:3001/${id}`)
+        .then((data) => data.json())
+        .then((response) => response.data);
+
+    const fetchPost = async (data) => {
+      const arr = document.querySelectorAll('#inputs');
+      const obj = { questionsId: id, answer: [] };
+      arr.forEach((answer, index) => {
+        console.log(answer.value);
+        obj.answer = [...obj.answer, answer.value];
+      });
+      return obj;
+    };
+
+    const database = async (data) => {
+      const answers = await fetchPost(data.questions);
+
+      const outData = localStorage.getItem('database')
+        ? JSON.parse(localStorage.getItem('database'))
+        : [];
+      const newData = {
+        ...outData,
+        [id]: { ...answers, title: data.title, user: data.user, answered: new Date() },
+      };
+      localStorage.setItem('database', JSON.stringify(newData));
+    };
+  </script>
+  <body>
+    <div class="container-sm">
+      <form class="mt-5" id="forms" method="POST">
+        <input name="id" type="hidden" value="" />
+        <h3 class="mb-5" id="h3-title"></h3>
+      </form>
+    </div>
+  </body>
+</html>
