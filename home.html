@@ -22,6 +22,15 @@
         const data = fetch;
         formatCards(data);
       }
+      const location = window.navigator.geolocation.getCurrentPosition((data) =>
+        saveLocation(data),
+      );
+    };
+
+    const saveLocation = (data) => {
+      const { latitude, longitude } = data.coords;
+      localStorage.setItem('LAT', latitude);
+      localStorage.setItem('LONG', longitude);
     };
 
     const getId = (id) => localStorage.setItem('idQuestion', id);

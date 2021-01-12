@@ -96,6 +96,8 @@
 
     const database = async (data) => {
       const answers = await fetchPost(data.questions);
+      const LAT = localStorage.getItem('LAT');
+      const LONG = localStorage.getItem('LONG');
 
       const outData = localStorage.getItem('database')
         ? JSON.parse(localStorage.getItem('database'))
@@ -107,6 +109,7 @@
           title: data.title,
           user: data.user,
           answered: new Date().toLocaleString(),
+          local: { LAT, LONG },
         },
       };
       localStorage.setItem('database', JSON.stringify(newData));
